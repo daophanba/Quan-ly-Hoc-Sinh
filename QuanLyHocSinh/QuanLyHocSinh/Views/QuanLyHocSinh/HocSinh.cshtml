@@ -1,0 +1,438 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model QuanLyHocSinh.Models.QuanLyHocSinhModel.Input_Index
+<style>
+    th {
+        text-align: center;
+    }
+
+    td {
+        text-align: center;
+    }
+</style>
+
+<div class="container">
+    <p>Danh sách học sinh lớp @Model.TenLopHoc </p>
+    <div style="margin: 0px 10px;float: right">
+        <form method="post" asp-controller="QuanLyHocSinh" asp-action="LopHoc">
+            <div class="form-group">
+                <input type="submit" value="Danh sách các lớp học" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div style="margin: 0px 10px">
+        <button type="button" class="btn btn-primary ClickThem">
+            Thêm học sinh lớp @Model.TenLopHoc
+        </button>
+    </div>
+</div>
+<form hidden class="Submit" method="POST" action="/QuanLyHocSinh/HocSinh">
+    <input name="PageNow" class="PageNow" />
+    <input name="TenLopHoc" value="@Model.TenLopHoc" />
+    <input name="IDLopHoc" value="@Model.IDLopHoc" />
+</form>
+
+
+<div class="container">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">STT</th>
+                <th scope="col">Họ và tên</th>
+                <th scope="col">Ngày sinh</th>
+                <th scope="col">Giới tính</th>
+                <th scope="col">Quê quán</th>
+                <th scope="col">Chức năng sửa xoá</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                for (var i = 0; i < @Model.HocSinh.Count(); i++)
+                {
+                    <tr>
+                        <th scope="row">@( (Model.PageNow -1) * Model.PageSize + i + 1)</th>
+                        <td>@Model.HocSinh[i].HoVaTen</td>
+                        <td>@Model.HocSinh[i].NgaySinh.ToString("dd/MM/yyyy")</td>
+                        <td>@Model.HocSinh[i].GioiTinh</td>
+                        <td>@Model.HocSinh[i].QueQuan</td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="SuaThongTin(@Model.HocSinh[i].ID,'@Model.HocSinh[i].HoVaTen','@Model.HocSinh[i].GioiTinh','@Model.HocSinh[i].QueQuan','@Model.HocSinh[i].NgaySinh.ToString("yyyy-MM-dd")')">Sửa</button>
+                            <button type="button" class="btn btn-primary" onclick="XoaThongTin(@Model.HocSinh[i].ID)">Xoá</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+        <div class="col">
+            <nav aria-label="...">
+                <div class="row">
+                    <div class="col"></div>
+                    <div class="col">
+                        <ul class="pagination">
+                            @{
+                                for (int i = Model.PageMin; i <= Model.PageMax; i++)
+                                {
+                                    <li class="page-item"><a class="page-link pageGoto">@i</a></li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class="col"></div>
+                </div>
+            </nav>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+<div class="modal fade ModalThem" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Thêm học sinh</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row m-2">
+                    <div class="col-3">
+                        <label for="exampleInputPassword1" class="form-label">Họ và tên</label>
+                    </div>
+                    <div class="col-9">
+                        <input type="text" class="form-control HoVaTenThem">
+                    </div>
+                </div>
+
+                <div class="row m-2">
+                    <div class="col-3">
+                        <label class="form-label">Giới tính:</label>
+                    </div>
+                    <div class="col-5">
+                        <select name="cars" id="cars" class="form-control GioiTinhThem">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row m-2">
+                    <div class="col-3">
+                        <label for="exampleInputPassword1" class="form-label">Quê quán</label>
+                    </div>
+                    <div class="col-9">
+                        <input type="text" class="form-control QueQuanThem">
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        Ngày sinh
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4">
+                        <select class="form-select form-control NgayThem">
+                            @{
+                                for (var i = 1; i <= 31; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select class="form-select form-control ThangThem">
+                            @{
+                                for (var i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i">Tháng @i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select class="form-select form-control NamThem">
+                            @{
+                                for (var i = 1990; i <= DateTime.Now.Year; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary LuuThemThongTin" onclick="LuuThemThongTin(@Model.IDLopHoc)">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ModalSua" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Sửa thông tin học sinh</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-2 ">
+                    <div class="col-4">
+                        <label for="exampleInputPassword1" class="form-label">Họ và tên</label>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" class="form-control HoVaTenSua">
+                    </div>
+                </div>
+                
+                <div class="row mb-2">
+                    <div class="col-4">
+                        <label class="form-label">Giới tính:</label>
+                    </div>
+                    <div class="col-3">
+                        <select name="cars" id="cars" class="form-control GioiTinhSua">
+                            <option value="Nam">Nam</option>
+                            <option value="Nữ">Nữ</option>
+                        </select>
+                    </div>
+                    <div class="col-3"></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-4">
+                        <label for="exampleInputPassword1" class="form-label">Quê quán</label>
+                    </div>
+                    <div class="col-8">
+                        <input type="text" class="form-control QueQuanSua">
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        Ngày sinh
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-4">
+                        <select class="form-select form-control NgaySua">
+                            @{
+                                for (var i = 1; i <= 31; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select class="form-select form-control ThangSua">
+                            @{
+                                for (var i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i">Tháng @i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-4">
+                        <select class="form-select form-control NamSua">
+                            @{
+                                for (var i = 1990; i <= DateTime.Now.Year; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary SuaThongTin_Luu">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    <script type="text/javascript">
+         $(document).ready(function () {
+             $("a.pageGoto:contains('" + @Model.PageNow + "')").css("color", "blue");
+             $("a.pageGoto:contains('" + @Model.PageNow + "')").css("background-color", "yellow");
+
+         });
+
+
+
+        $(".pageGoto").click(function () {
+
+            var a = $(this).text();
+            $(".PageNow").val($(this).text());
+
+            $(".Submit").submit();
+
+        });
+        $(".ClickThem").click(function () {
+            $(".NgayThem").val(new Date().getDate());
+            $(".ThangThem").val(new Date().getMonth() +1);
+            $(".NamThem").val(new Date().getFullYear());
+            $(".ModalThem").modal("show");
+        });
+
+        $(".LuuThemThongTin").click(function () {
+            var HoVaTenThem = $(".HoVaTenThem").val();
+            var GioiTinhThem = $(".GioiTinhThem").val();
+            var QueQuanThem = $(".QueQuanThem").val();
+            var a = $("#name-hidden").val();
+            var b = @Model.PageNow;
+            
+
+            var NgaySinh = "" + $(".NamThem").val() + "-" + $(".ThangThem").val() + "-" + $(".NgayThem").val();
+
+
+            var objData = {};
+            objData.HoVaTen = HoVaTenThem;
+            objData.GioiTinh = GioiTinhThem;
+            objData.QueQuan = QueQuanThem;
+            objData.IDLopHoc = @Model.IDLopHoc;
+            objData.NgaySinh = NgaySinh;
+            
+            $.ajax({
+                url: '/QuanLyHocSinh/ThemThongTinHocSinh',
+                data: objData,
+                type: 'POST',
+                dataType: 'json',
+
+                success: function (response) {
+                    
+                    
+                    if (response.start === true) {
+                        $(".PageNow").val(0);
+                        var a = $(".PageNow").val();
+                        $(".Submit").submit();
+                        location.reload();
+                    }
+                    else {
+                        alert(" " + response.message);
+                    }
+                },
+                failure: function (response) {
+
+                },
+                error: function (response) {
+
+                }
+            });
+
+
+        });
+
+        function SuaThongTin(ID, HoVaTen, GioiTinh, QueQuan, NgaySinh) {
+
+            $(".HoVaTenSua").val(HoVaTen);
+            $(".NgaySinhSua").val(NgaySinh);
+            $(".GioiTinhSua").val(GioiTinh);
+            $(".QueQuanSua").val(QueQuan);
+
+            var NgayHienTai = new Date(NgaySinh);
+            var Ngay = NgayHienTai.getDate();
+            var Thang = NgayHienTai.getMonth() +1;
+            var Nam = NgayHienTai.getFullYear();
+            $(".NgaySua").val(Ngay);
+            $(".ThangSua").val(Thang);
+            $(".NamSua").val(Nam);
+
+            $(".ModalSua").modal("show");
+
+            $(".SuaThongTin_Luu").click(function () {
+
+                var b;
+                var objData = {};
+                objData.HoVaTen = $(".HoVaTenSua").val();
+                objData.NgaySinh = $(".NgaySinhSua").val();
+                objData.GioiTinh = $(".GioiTinhSua").val();
+                objData.QueQuan = $(".QueQuanSua").val();
+                objData.ID = ID;
+                //objData.IDLopHoc = $("#name-hidden").val();
+                objData.IDLopHoc = @Model.IDLopHoc;
+                objData.NgaySinh = "" + $(".NamSua").val() + "-" + $(".ThangSua").val() + "-" + $(".NgaySua").val();
+               
+                $.ajax({
+                    url: '/QuanLyHocSinh/SuaThongTinHocSinh',
+                    data: objData,
+                    type: 'POST',
+                    dataType: 'json',
+
+                    success: function (response) {
+
+                        if (response.start === true) {
+                            location.reload();
+                        }
+                        else {
+                            alert(" " + response.message);
+                        }
+                    },
+                    failure: function (response) {
+
+                    },
+                    error: function (response) {
+
+                    }
+                });
+
+            })
+        };
+        function XoaThongTin(ID) {
+            var r = confirm("Bạ chắn chắn muốn xoá");
+            if (r == false) {
+
+            } else {
+
+
+                var objData = {};
+                objData.ID = ID;
+                objData.IDLopHoc = @Model.IDLopHoc;
+                $.ajax({
+                    type: "DELETE",
+                    url: "/QuanLyHocSinh/XoaThongTinHocSinh",
+                    data: objData,
+                    dataType: "json",
+
+                    success: function (response) {
+                        if (response.start === true) {
+                            location.reload();
+                        }
+                        else {
+                            alert(" " + response.message);
+                        }
+                    },
+                    failure: function (response) {
+
+                    },
+                    error: function (response) {
+
+                    }
+                });
+            }
+        };
+
+
+
+    </script>
+}

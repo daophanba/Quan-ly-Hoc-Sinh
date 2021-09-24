@@ -1,0 +1,345 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model QuanLyHocSinh.Models.QuanLyHocSinhModel.Input_Index
+
+
+
+
+
+<form hidden class="SubmitHocSinh" method="POST" action="/QuanLyHocSinh/HocSinh">
+    <input name="IDLopHoc" class="IDLopHocSinh" />
+    <input name="TenLopHoc" class="TenLopHoc" />
+
+</form>
+<form hidden class="Submit" method="POST" action="/QuanLyHocSinh/LopHoc">
+    <input name="PageNow" class="PageNow" />
+
+</form>
+
+<div class="container">
+    <div><strong> Danh sách các lớp học</strong></div>
+    <div><button type="button" class="btn btn-primary ClickThem">Thêm</button></div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">STT</th>
+                <th scope="col">Mã lớp</th>
+                <th scope="col">Tên lớp học</th>
+                <th scope="col">Sĩ số</th>
+                <th scope="col">Giáo viên chủ nhiệm</th>
+                <th scope="col">Chức năng đi kèm</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @{
+                for (var i = 0; i < @Model.LopHoc.Count(); i++)
+                {
+                    <tr>
+                        <th scope="row"> @( (Model.PageNow -1) * Model.PageSize + i + 1) </th>
+                        <td>@Model.LopHoc[i].MaDinhDanhLop</td>
+                        <td>@Model.LopHoc[i].TenLopHoc</td>
+                        <td>@Model.LopHoc[i].SiSo</td>
+                        <td>@Model.LopHoc[i].GiaoVienChuNhiem</td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="SuaThongTin(@Model.LopHoc[i].ID,'@Model.LopHoc[i].MaDinhDanhLop','@Model.LopHoc[i].TenLopHoc',@Model.LopHoc[i].SiSo,'@Model.LopHoc[i].GiaoVienChuNhiem')" data-toggle="tooltip" data-placement="top" title="Sửa thông tin lớp @Model.LopHoc[i].TenLopHoc">Sửa</button>
+                            <button type="button" class="btn btn-primary" onclick="XoaThongTin(@Model.LopHoc[i].ID)" data-toggle="tooltip" data-placement="top" title="Xoá thông tin lớp @Model.LopHoc[i].TenLopHoc">Xoá</button>
+                            <button type="button" class="btn btn-primary" onclick="XemHocSinh(@Model.LopHoc[i].ID,'@Model.LopHoc[i].TenLopHoc')" data-toggle="tooltip" data-placement="top" title="Xem danh sách lớp @Model.LopHoc[i].TenLopHoc">Danh sách học sinh</button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col"></div>
+        <div class="col">
+            <nav aria-label="...">
+                <div class="row">
+                    <div class="col"></div>
+                    <div class="col">
+                        <ul class="pagination">
+                            @{
+                                for (int i = Model.PageMin; i <= Model.PageMax; i++)
+                                {
+                                    <li class="page-item"><a class="page-link pageGoto">@i</a></li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                    <div class="col"></div>
+                </div>
+            </nav>
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade ModalThem" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Thêm lớp học</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Mã lớp</label>
+                    <input type="text" class="form-control MaLopThem">
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Tên lớp học</label>
+                    <input type="text" class="form-control TenLopThem">
+                </div>
+                @*<div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">Sĩ số</label>
+                        <input type="number" class="form-control SiSoThem" onkeydown="javascript: return event.keyCode === 8 || event.keyCode === 46 ? true : !isNaN(Number(event.key))">
+                    </div>*@
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Giáo viên chủ nhiệm</label>
+                    <input type="text" class="form-control GiaoVienThem">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary ThemThongTin">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade ModalSua" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Sửa thông tin lớp học</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Mã lớp</label>
+                    <input type="text" class="form-control MaLopSua">
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Tên lớp học</label>
+                    <input type="text" class="form-control TenLopSua">
+                </div>
+                @*<div class="mb-3">
+                        <label for="exampleInputPassword1" class="form-label">Sĩ số</label>
+                        <input type="number" class="form-control SiSoSua" onkeydown="javascript: return event.keyCode === 8 || event.keyCode === 46 ? true : !isNaN(Number(event.key))">
+                    </div>*@
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label">Giáo viên chủ nhiệm</label>
+                    <input type="text" class="form-control GiaoVienSua">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary SuaThongTin">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade ModalThemHocSinh" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Thêm học sinh cho lớp học</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label HoTenThem">Họ và tên:</label>
+                    <input type="text" class="form-control MaLopSua">
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label NgaySinhThem">Ngày sinh</label>
+                    <input type="date" class="form-control TenLopSua">
+                </div>
+                <div class="mb-3">
+                    <select name="cars" id="cars" class="form-control GioiTinhThem">
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="exampleInputPassword1" class="form-label QueQuanThem">Quê quán</label>
+                    <input type="text" class="form-control TenLopSua">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary SuaThongTin">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            @*$("a.:contains('" + @Model.PageNow + "')").css("color", "blue");
+            $("a:contains('" + @Model.PageNow + "')").css("background-color", "yellow");*@
+            @*$(".pageGoto").val(@Model.PageNow).css("color", "blue");
+            $(".pageGoto").val(@Model.PageNow).css("background-color", "yellow");*@
+        @*$("a.pageGoto").filter(":nth-child( " + @Model.PageNow + ")").css("background-color", "yellow");*@
+            $("a.pageGoto:contains('" + @Model.PageNow + "')").css("color", "blue");
+            $("a.pageGoto:contains('" + @Model.PageNow + "')").css("background-color", "yellow");
+        });
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+
+        function XemHocSinh(ID,TenLopHoc) {
+            $(".IDLopHocSinh").val(ID);
+            $(".TenLopHoc").val(TenLopHoc);
+
+            $(".SubmitHocSinh").submit();
+        }
+        $(".pageGoto").click(function () {
+
+            var a = $(this).text();
+            $(".PageNow").val($(this).text());
+
+            $(".Submit").submit();
+
+        });
+        $(".ClickThem").click(function () {
+            $(".ModalThem").modal("show");
+
+        });
+        $(".ThemThongTin").click(function () {
+            var MaLopThem = $(".MaLopThem").val();
+            var TenLopThem = $(".TenLopThem").val();
+            var SiSoThem = $(".SiSoThem").val();
+            var GiaoVienThem = $(".GiaoVienThem").val();
+            var objData = {};
+            objData.MaLop = MaLopThem;
+            objData.TenLop = TenLopThem;
+            objData.SiSo = SiSoThem;
+            objData.GiaoVien = GiaoVienThem;
+            $.ajax({
+                url: '/QuanLyHocSinh/ThemThongTinLop',
+                data: objData,
+                type: 'POST',
+                dataType: 'json',
+
+                success: function (response) {
+
+                    if (response.start === true) {
+                        location.reload();
+                    }
+                    else {
+                        alert(" " + response.message);
+                    }
+                },
+                failure: function (response) {
+
+                },
+                error: function (response) {
+
+                }
+            });
+
+        });
+
+
+
+
+
+        function SuaThongTin(ID, MaDinhDanhLop, TenLopHoc, SiSo, GiaoVienChuNhiem) {
+
+            $(".MaLopSua").val(MaDinhDanhLop);
+            $(".TenLopSua").val(TenLopHoc);
+            $(".SiSoSua").val(SiSo);
+            $(".GiaoVienSua").val(GiaoVienChuNhiem);
+            $(".ModalSua").modal("show");
+
+            $(".SuaThongTin").click(function () {
+                var objData = {};
+                objData.MaLop = $(".MaLopSua").val();
+                objData.TenLop = $(".TenLopSua").val();
+                objData.SiSo = $(".SiSoSua").val();;
+                objData.GiaoVien = $(".GiaoVienSua").val();
+                objData.ID = ID;
+                $.ajax({
+                    url: '/QuanLyHocSinh/SuaThongTinLop',
+                    data: objData,
+                    type: 'POST',
+                    dataType: 'json',
+
+                    success: function (response) {
+                        if (response.start === true) {
+                            location.reload();
+                        }
+                        else {
+                            alert("Thất bại");
+                        }
+                    },
+                    failure: function (response) {
+
+                    },
+                    error: function (response) {
+
+                    }
+                });
+
+
+            })
+        }
+        function XoaThongTin(ID) {
+            var r = confirm("Bạ chắn chắn muốn xoá");
+            if (r == false) {
+
+            } else {
+
+
+                var objData = {};
+                objData.ID = ID;
+
+                $.ajax({
+                    type: "DELETE",
+                    url: "/QuanLyHocSinh/XoaThongTinLop",
+                    data: objData,
+                    dataType: "json",
+
+                    success: function (response) {
+                        if (response.start === true) {
+                            location.reload();
+                        }
+                        else {
+                            alert("Thất bại");
+                        }
+                    },
+                    failure: function (response) {
+
+                    },
+                    error: function (response) {
+
+                    }
+                });
+            }
+        };
+
+    </script>
+
+}
